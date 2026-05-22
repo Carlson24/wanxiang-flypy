@@ -1,0 +1,374 @@
+diff -Naur a/lua/wanxiang/super_replacer.lua b/lua/wanxiang/super_replacer.lua
+--- a/lua/wanxiang/super_replacer.lua	2026-05-16 17:42:06.035496358 +0800
++++ b/lua/wanxiang/super_replacer.lua	2026-05-16 17:42:06.061501373 +0800
+@@ -659,7 +659,11 @@
+         if #env.shared_comments > 0 then
+             local comment_str = concat(env.shared_comments, " ")
+             local fmt = s_format(comment_fmt, comment_str)
+-            current_main_comment = fmt 
++            if current_main_comment and current_main_comment ~= "" then
++                current_main_comment = current_main_comment .. fmt
++            else
++                current_main_comment = fmt
++            end
+         end
+ 
+         if show_main then
+diff -Naur a/wanxiang_algebra.yaml b/wanxiang_algebra.yaml
+--- a/wanxiang_algebra.yaml	2026-05-20 08:08:28.000000000 +0800
++++ b/wanxiang_algebra.yaml	2026-05-23 07:33:38.215308272 +0800
+@@ -1703,6 +1703,9 @@
+   hupvd:
+     __append:
+       - xlit/HSPZN/hupvd/
++  alpvd: # 小鹤风格笔画映射
++    __append:
++      - xlit/HSPZN/alpvd/
+   #适配乱序17按键映射的笔画映射（横在HP键，竖在Sh键，撇在L键，捺在Y键，折在Zh键）
+   hslzy:  
+     __append:
+diff -Naur a/wanxiang_english.schema.yaml b/wanxiang_english.schema.yaml
+--- a/wanxiang_english.schema.yaml	2026-05-15 08:47:36.000000000 +0800
++++ b/wanxiang_english.schema.yaml	2026-05-17 09:21:20.944123833 +0800
+@@ -42,7 +42,7 @@
+   delimiter: " '"
+   algebra:
+     __include: wanxiang_algebra:/english/通用规则
+-    __patch: wanxiang_algebra:/english/全拼   #可选的选项有（全拼, 自然码, 小鹤双拼, 微软双拼, 搜狗双拼, 智能ABC, 紫光双拼, 拼音加加）
++    __patch: wanxiang_algebra:/english/小鹤双拼
+ translator:
+   dictionary: wanxiang_english
+   enable_user_dict: false
+@@ -60,7 +60,7 @@
+ 
+ wanxiang_english:
+   dictionary: wanxiang_english
+-  user_dict: en
++  user_dict: wanxiang_en
+   enable_completion: true
+   enable_sentence: true
+   initial_quality: 3
+@@ -70,5 +70,5 @@
+   #off: 关闭; before: 总是前加; after: 总是后加; 
+   #smart: 智能模式连续输入英文时第二个单词前开始加空格，非输入状态的回车与空格都能打断加空格状态
+   #支持设置延时销毁加空格状态，单位秒,0不超时，大于0为超时时间，极大的保证了连续输入的体验。
+-  english_spacing: smart
++  english_spacing: off
+   spacing_timeout: 5
+\ 文件末尾没有换行符
+diff -Naur a/wanxiang_mixedcode.schema.yaml b/wanxiang_mixedcode.schema.yaml
+--- a/wanxiang_mixedcode.schema.yaml	2026-05-15 08:47:36.000000000 +0800
++++ b/wanxiang_mixedcode.schema.yaml	2026-05-17 09:21:25.939503597 +0800
+@@ -31,7 +31,7 @@
+   delimiter: " '"
+   algebra:
+     __include: wanxiang_algebra:/mixed/通用派生规则
+-    __patch: wanxiang_algebra:/mixed/全拼   #可选的选项有（全拼, 自然码, 小鹤双拼, 微软双拼, 搜狗双拼, 智能ABC, 紫光双拼, 拼音加加, 自然龙, 汉心龙）
++    __patch: wanxiang_algebra:/mixed/小鹤双拼
+ translator:
+   dictionary: wanxiang_mixedcode
+   enable_user_dict: false
+\ 文件末尾没有换行符
+diff -Naur a/wanxiang_pro.dict.yaml b/wanxiang_pro.dict.yaml
+--- a/wanxiang_pro.dict.yaml	2026-05-16 17:42:06.043974472 +0800
++++ b/wanxiang_pro.dict.yaml	2026-05-16 17:42:06.068237399 +0800
+@@ -21,6 +21,7 @@
+   - dicts/duoyin.pro        #兼容词库，是基础词库的扩充，收录了多场景多种读音的词组
+   - dicts/shici.pro         #诗词
+   - dicts/diming.pro        #地名
+-#  - dicts/wuzhong.pro       #物种多样性,在线供应：https://github.com/amzxyz/rime-wanxiang/tree/wanxiang/dicts
+-#  - dicts/renming.pro       #人名,在线供应：https://github.com/amzxyz/rime-wanxiang/tree/wanxiang/dicts
++  - dicts/wuzhong.pro       #物种多样性,在线供应：https://github.com/amzxyz/rime-wanxiang/tree/wanxiang/dicts
++  - dicts/renming.pro       #人名,在线供应：https://github.com/amzxyz/rime-wanxiang/tree/wanxiang/dicts
++  - dicts/moegirl.pro       #萌娘百科,来自：https://github.com/suiginko/moetype
+ ...
+\ 文件末尾没有换行符
+diff -Naur a/wanxiang_pro.schema.yaml b/wanxiang_pro.schema.yaml
+--- a/wanxiang_pro.schema.yaml	2026-05-16 17:42:06.049676331 +0800
++++ b/wanxiang_pro.schema.yaml	2026-05-22 17:20:41.677915357 +0800
+@@ -3,7 +3,7 @@
+ # 方案说明
+ schema:
+   schema_id: wanxiang_pro
+-  name: 万象拼音PRO
++  name: 万象小鹤PRO
+   version: "LTS"
+   author:
+     - amzxyz
+@@ -118,7 +118,7 @@
+   rear_penalty: -10
+ 
+ super_comment:                  # 超级注释模块，子项配置 true 开启，false 关闭
+-  candidate_length: 1           # 候选词辅助码提醒的生效长度，0为关闭  但同时清空其它，应当使用上面开关来处理
++  candidate_length: 7           # 候选词辅助码提醒的生效长度，0为关闭  但同时清空其它，应当使用上面开关来处理
+   corrector_type: "〔comment〕"  # 随意更换左右括号，比如"〔comment〕" 不加括号为无括号，comment占位不能动
+   cand_type:
+     user_phrase: "⁺"
+@@ -137,24 +137,24 @@
+   enable_tone_fallback: true   # 启用声调回退
+   enable_predict_space: false   # 启用联想空格打断，直接上屏空格并清空联想，对齐大厂，如果用原生librime-predict这个还有用留着
+   kp_number_mode: auto         # 小键盘模式 (auto / compose / select)
+-  limit_repeated: "8,40"       #格式："最大重复声母数,最大候选字数"
++  limit_repeated: "16,64"       #格式："最大重复声母数,最大候选字数"
+   select_character: "[,]"      # 开启以词定字，自动拆解第一位上屏首字，第二位上屏尾字
+   # 下面这些写法都支持：
+   # select_character: "[,]"                      # [ 上屏首字，] 上屏尾字（推荐）
+   # select_character: "bracketleft, bracketright"  # [ 上屏首字，] 上屏尾字（英文全拼）
+ 
+ user_predict:
+-  db_name: lua/predict         # 数据库名称（默认 predict，将生成 predict.userdb 文件夹）
++  db_name: lua/data/predict         # 数据库名称（默认 predict，将生成 predict.userdb 文件夹）
+   enable_post_predict: true        # 上屏后预测
+   enable_context_reorder: true     # 输入时调频
+   enable_fallback_reorder: true    # 同码回删再输首次交换
+-  max_candidates: 10           # 屏幕最多显示的联想词数量
+-  max_predictions: 3           # 连续触发预测的最高次数限制
++  max_candidates: 5           # 屏幕最多显示的联想词数量
++  max_predictions: 10           # 连续触发预测的最高次数限制
+   expiry_days: 90              # 绝对寿命（天）：不命中则物理销毁
+   activation_days: 7           # 激活期限（天）：冷冻期内输入第2次转正
+   max_memory_branches: 15      # 分支上限：单前缀最多保留15个后续预测
+   decay_rate: 0.85             # 衰减率：单日时间权重打 85 折
+-  enable_predict_space: false   # true: 按空格上屏空格; false:空格提交候选。一般手机开电脑关，空格当上屏则，Tab、Alt按键当作空格
++  enable_predict_space: true   # true: 按空格上屏空格; false:空格提交候选。一般手机开电脑关，空格当上屏则，Tab、Alt按键当作空格
+   context_timeout: 5000         # 上文超时时间毫秒
+   custom_classifiers:            # 数字后量词调频，如平时chuan传，输入数字后，首选为串，结果如：1串，想关闭清空列表即可
+     - 个只名位口头匹条群批伙多         # 人物动物
+@@ -167,11 +167,11 @@
+     - 米寸尺里斤两吨克升元角毛笔百千万亿     # 度量货币
+ 
+ super_tips:
+-  db_name: "lua/tips"  # 可选字段，不写的话默认使用 "lua/tips"，相对路径
+-  tips_key: "comma"    # key英文单词不清楚去default找
++  db_name: "lua/data/tips"  # 可选字段，不写的话默认使用 "lua/tips"，相对路径
++  tips_key: "period"    # key英文单词不清楚去default找
+   files:                       # 自定义数据文件列表（可选，不配置则使用默认文件）
+     - lua/data/tips_show.txt   # 仍可保留默认文件
+-    #- lua/data/my_tips.txt     # 用户自定义文件
++    - lua/data/tips_chaifen.txt
+   disabled_types:
+     - "禁用类型A"
+     - "禁用类型B"
+@@ -179,18 +179,18 @@
+     # 可选项为：偏旁，符号，化学式，时间，符号，组字，翻译，表情，货币，车牌, 单位
+ 
+ force_upper_aux:
+-  hotkey: "F1"  #用来固定候选的快捷键，原理是用双大写字母定字,能用组合键能用符号Tab等，按一下固定当前可见候选，按两下固定N-1个字状态下记录的字
++  hotkey: "comma"  #用来固定候选的快捷键，原理是用双大写字母定字,能用组合键能用符号Tab等，按一下固定当前可见候选，按两下固定N-1个字状态下记录的字
+   symbol: "›" #用来替代双大写字母辅助的preedit视觉拉长的问题
+ 
+ #常规状态下数字转换成相应的字符，由超级preedit接管
+ tone_preedit:
+-  "7": "¹"
+-  "8": "²"
+-  "9": "³"
+-  "0": "⁴"
++  "7": "①"
++  "8": "②"
++  "9": "③"
++  "0": "④"
+ 
+ super_sequence:  # Lua 配置：手动排序的快捷键 super_sequence.lua，不要用方向键，各种冲突，一定要避免冲突
+-  db_name: "lua/sequence"
++  db_name: "lua/data/sequence"
+   up: "Control+j"    # 上移
+   down: "Control+k"  # 下移
+   reset: "Control+l" # 重置
+@@ -225,7 +225,7 @@
+ # abbrev_rule:      (仅 abbrev 模式生效) 格式为 "数量,位置"。(如 "1,6" 表示将词库前 1 个词插队到第 6 候选位，其余全部放在最后面兜底)
+ # files:            要读取的 txt 词库文件列表 (支持多文件合并，UserDir 优先于 SharedDir)
+ super_replacer:
+-  db_name: lua/replacer
++  db_name: lua/data/replacer
+   delimiter: "|"
+   comment_format: "〔%s〕"
+   chain: true   #true表示流水线作业，上一个option产出交给下一个处理，典型的s2t>t2hk=s2hk，false就是并行，直接用text转换
+@@ -293,12 +293,21 @@
+       mode: abbrev
+       tags: [abc]
+       prefix: "_abbr_"
+-      abbrev_rule: "1,6"  
++      abbrev_rule: "100,1"
+       # 前置数量1，前置位置6,数量说的是你维护得数据库编码后面分割了几个词前几个要前置显示,位置说的是你要前置到第二候选还是第几
+       # 然后空码或只有英文等自定义词组的时候直接全部兜底显示,这个新的设计简化的应用层面,我们只需要维护一个数据库即可.
+       files:
+-        - lua/data/abbrev.txt
+-        - lua/data/chengyu.txt
++        - carlson_abbrev.txt # 用户简码
++        - lua/data/flypy_fixed.txt
++        - lua/data/flypy_osymbols.txt
++    - option: true # 利用码表做的小玩意
++      mode: comment
++      comment_mode: none
++      tags: [abc]
++      prefix: "_comt_"
++      files:
++        - lua/data/flypy_commit.txt
++
+ # 字符集过滤lua
+ # a,通用规范汉字表
+ # b,GB2312,
+@@ -400,7 +409,7 @@
+ # a/、单字母组合，触发预设编码自动上屏快符，支持将值设为"repeat" 以支持对应按键重复上屏功能，custom>schema>lua最终合并键值
+ # 现在就支持26字母快符，结合成对符号输入，这边的压力小一些
+ quick_symbol_text:
+-  trigger: "^([a-z])/$"
++  trigger: "^|([a-z])$"
+   symkey:
+     q: "repeat"
+     w: "？"
+@@ -433,7 +442,7 @@
+ #trigger只能设置为单符号，因为按下一次锁定第一候选，按下映射开始包裹符号pro用户不能设置为/
+ #两个字符可以不用|默认前后分割，需要明确区分前后的使用|分割，可以有一侧为空，不可以使用多个||
+ paired_symbols:
+-  trigger: "\\"  #(注意反斜杠这是转义写法\\使用时\单反斜杠即可)
++  trigger: "|"
+   symkey:
+     # ===== 基本括号与引号 =====
+     a: "[]"        # 方括号
+@@ -536,7 +545,7 @@
+     sb: "sb"
+ 
+ input_stats:
+-  db_name: "lua/stats" # 自定义统计数据库路径
++  db_name: "lua/data/stats" # 自定义统计数据库路径
+   triggers:
+     clear: "/qctj"      # 清除数据（推荐长一点防误触）
+     today: "/rtj"       # 查今日（日统计）
+@@ -545,7 +554,7 @@
+     year: "/ntj"        # 查本年（年统计）
+     total: "/tj"        # 查生涯（总统计）
+     history: "/htj"     # 时光机：查历史。用法示例输入：/htj20231015，从年月日依次递进，以t间隔查区间/htj20231015t20240102
+-  
++
+ # 如果你不配 titles，默认会使用内置的“打字流派”段位。
+ # 如果你想魔改（比如修真流），就取消下面这段注释：
+ #  titles:  #对齐：triggers
+@@ -558,7 +567,7 @@
+ 
+ # Lua 配置：计算器触发关键字
+ calculator:
+-  trigger: "V"
++  trigger: "="
+ 
+ # 主翻译器，拼音
+ translator:
+@@ -583,7 +592,7 @@
+ # 自定义短语
+ custom_phrase:
+   dictionary: ""
+-  user_dict: custom_phrase  # 需要手动创建 custom_phrase.txt 文件
++  user_dict: carlson_userphrase  # 用户短语
+   db_class: stabledb
+   enable_completion: false # 补全提示
+   enable_sentence: false   # 禁止造句
+@@ -592,7 +601,7 @@
+ # 中文、英文、数字、符号等混合词汇
+ wanxiang_english:
+   dictionary: wanxiang_english
+-  user_dict: en
++  user_dict: wanxiang_en
+   enable_completion: true
+   enable_sentence: true
+   initial_quality: 2.1
+@@ -603,9 +612,9 @@
+   #off: 关闭; before: 总是前加; after: 总是后加; 
+   #smart: 智能模式连续输入英文时第二个单词前开始加空格，非输入状态的回车与空格都能打断加空格状态
+   #支持设置延时销毁加空格状态，单位秒,0不超时，大于0为超时时间，极大的保证了连续输入的体验。
+-  english_spacing: smart
++  english_spacing: off
+   spacing_timeout: 5
+-  max_candidates: 3  #英文候选输出最大候选数(适用于需要选单字组词的用户)
++  max_candidates: 0  #英文候选输出最大候选数(适用于需要选单字组词的用户)
+   trigger: "\\"  #英文造词符号\，写一个用时双击
+ 
+ wanxiang_mixedcode:
+@@ -654,7 +663,7 @@
+     yr6: "^N1[02]?3?[01]?"
+     nyr1: "^N19?[0-9]?[0-9]?[0-1]?[0-9]?[0-9]?[0-9]?"
+     nyr2: "^N20?[0-9]?[0-9]?[0-1]?[0-9]?[0-9]?[0-9]?"
+-    calculator: "^V.*$"                 #计算器功能引导
++    calculator: "^=.*$"                 #计算器功能引导
+     email: "^[A-Za-z][-_.0-9A-Za-z]*@.*$"                            # email @ 之后不上屏
+     url: "^(www[.]|https?:|ftp[.:]|mailto:|file:).*$"  # URL
+     htj: "^/htj.*$"
+@@ -697,7 +706,7 @@
+     - { when: composing, accept: Alt+Right, send: Shift+Right }
+     - { when: composing, accept: Control+w, send: Control+BackSpace }
+ # 分号用于次选，微软、搜狗双拼不可启用
+-    #- { when: has_menu, accept: semicolon, send: 2 }
++    - { when: has_menu, accept: semicolon, send: 2 }
+ # 使用Control+e进入翻译模式
+     - { when: has_menu, accept: "Control+e", toggle: chinese_english }
+ # 使用快捷键Control+c拆分显示
+@@ -722,8 +731,9 @@
+     - { when: composing, accept: "Control+Tab", send_sequence: '{Home}{Shift+Right}{1}{Shift+Right}' }
+ # 当输入编码后发现没有词，则通过双击``进入造词模式而且不需要删除编码，这个功能与``直接引导相呼应相配合
+     - { match: "^.*`$", accept: "`", send_sequence: '{BackSpace}{Home}{`}{`}{End}' }
+-# 斜杠被占用引导符号，因此输入本身设置为双击
++# 斜杠、分隔符被占用引导符号，因此输入本身设置为双击
+     - { match: "^/$", accept: "/", send_sequence: '{space}' }
++    - { match: "^\\|$", accept: "|", send_sequence: '{space}' }
+ 
+ editor:
+   bindings:
+@@ -755,16 +765,17 @@
+ #  auto_select: true
+ #  auto_select_pattern: ^[a-z]+/|^[a-df-zA-DF-Z]\w{3}|^e\w{4}
+   # 如果不想让什么标点直接上屏，可以加在 alphabet，或者编辑标点符号为两个及以上的映射
+-  alphabet: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA1234567890`;/\›
++  alphabet: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA1234567890`;/\@|›
+   # initials 定义仅作为始码的按键，排除 ` 让单个的 ` 可以直接上屏
+-  initials: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA/›
++  initials: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA/@|›
+   delimiter: " '"  # 第一位<空格>是拼音之间的分隔符；第二位<'>表示可以手动输入单引号来分割拼音。
+   visual_delimiter: " "  # super_preedit.lua配置：是否让分隔符号跟着一起转换，例如nǐ'hǎo 在实际使用中表现出视觉拥挤，我们可以让delimiter平时是'转换为拼音的时候使用空格nǐ hǎo，更符合实际。
+   algebra:
+     __patch:
+-      #- 模糊音             #模糊音选择性开启
+-      - wanxiang_algebra:/pro/自然码     #拼音转双拼码
+-      - wanxiang_algebra:/pro/直接辅助     #辅助码部分
++      - "wanxiang_algebra:/模糊音_in_ing"
++      - "wanxiang_algebra:/pro/小鹤双拼"
++      - "wanxiang_algebra:/pro/间接辅助"
++      - "wanxiang_algebra:/小鹤双拼提权"
+ 
+ user_dict_set:
+   dictionary: wanxiang_pro
+@@ -779,7 +790,7 @@
+   spelling_hints: 50
+   comment_format:
+   enable_user_dict: true
+-  user_dict: zc
++  user_dict: wanxiang_cn
+ 
+ 
+   # 自定义词典加词(ac引导)
+@@ -787,7 +798,7 @@
+   tag: add_user_dict
+   dictionary: wanxiang_pro
+   initial_quality: -1
+-  user_dict: zc
++  user_dict: wanxiang_cn
+   enable_completion: true # 提前显示尚未输入完整码的字〔仅 table_translator 有效〕
+   enable_user_dict: true
+   spelling_hints: 50
+diff -Naur a/wanxiang_reverse.schema.yaml b/wanxiang_reverse.schema.yaml
+--- a/wanxiang_reverse.schema.yaml	2026-05-15 08:47:36.000000000 +0800
++++ b/wanxiang_reverse.schema.yaml	2026-05-22 17:25:42.676272693 +0800
+@@ -25,13 +25,12 @@
+ key_binder:
+   __include: default:/key_binder?
+ 
+-
+ speller:
+   alphabet: "abcdefghijklmnopqrstuvwxyz;"
+   delimiter: " '"
+   algebra:
+-    __include: wanxiang_algebra:/reverse/全拼
+-    __patch: wanxiang_algebra:/reverse/hspzn      #笔画类型有hspzn，hupvd及hslzy（适配乱序17）可选
++    __include: wanxiang_algebra:/reverse/小鹤双拼
++    __patch: wanxiang_algebra:/reverse/alpvd
+ 
+ translator:
+   dictionary: wanxiang_reverse
