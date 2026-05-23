@@ -11,7 +11,7 @@ schema_list:
 
 # 菜单
 menu:
-  page_size: 6 # 候选词个数，不得超过6个，7890代表声调
+  page_size: 5 # 候选词个数，不得超过6个，7890代表声调
   alternative_select_labels: [➊, ➋, ➌, ➍, ➎, ➏, ➐, ➑, ➒, ➓]
 
 # 万象状态面板相关

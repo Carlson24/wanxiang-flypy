@@ -1,6 +1,8 @@
 build/*
 dicts/*
+sync/*
 **/*.userdb
 *.gram
+*.custom.yaml
 installation.yaml
 user.yaml
