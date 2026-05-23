@@ -29,8 +29,7 @@ speller:
   alphabet: "abcdefghijklmnopqrstuvwxyz;"
   delimiter: " '"
   algebra:
-    __include: wanxiang_algebra:/reverse/小鹤双拼
-    __patch: wanxiang_algebra:/reverse/alpvd
+    __include: wanxiang_algebra:/flypy_reverse
 
 translator:
   dictionary: wanxiang_reverse

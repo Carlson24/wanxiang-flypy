@@ -6,5 +6,5 @@
 name: wanxiang_english
 version: "lts"
 import_tables:
-  - dicts/en     # 英文主词库
+  - dicts/en # 英文主词库
 ...

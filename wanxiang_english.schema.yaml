@@ -2,7 +2,7 @@
 # encoding: utf-8
 schema:
   schema_id: wanxiang_english
-  name: 万象英文
+  name: 万象小鹤英文
   version: "lts"
   author: amzxyz
   description: |
@@ -30,7 +30,7 @@ engine:
     - fallback_segmentor
   translators:
     - table_translator
-    - table_translator@wanxiang_english    #英文词汇表导入
+    - table_translator@wanxiang_english #英文词汇表导入
     - punct_translator
   filters:
     - lua_filter@*wanxiang.auto_phrase
@@ -41,20 +41,20 @@ speller:
   alphabet: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA\
   delimiter: " '"
   algebra:
-    __include: wanxiang_algebra:/english/通用规则
-    __patch: wanxiang_algebra:/english/小鹤双拼
+    __include: wanxiang_algebra:/flypy_english
+
 translator:
   dictionary: wanxiang_english
   enable_user_dict: false
   initial_quality: 2
   comment_format:
     - xform/^~.+$//
+
 key_binder:
   import_preset: default
   bindings:
-    #- { when: always, accept: Shift+space, select: wanxiang }  #直接跳转指定方案
-    #- { when: always, accept: Shift+space, select: wanxiang_pro }  #直接跳转指定方案
-    - { when: always, accept: Shift+space, select: .next }  #下一个方案
+    - { when: always, accept: Shift+space, select: .next }
+
 recognizer:
   import_preset: default
 
@@ -64,11 +64,7 @@ wanxiang_english:
   enable_completion: true
   enable_sentence: true
   initial_quality: 3
-  comment_format:  #这里很重要如果残留带声调字母，剩余编码提示计算出错引发程序崩溃
+  comment_format:
     - xform/^~.+$//
-  #英文自动加空格，除关闭外共有3种模式可供选择
-  #off: 关闭; before: 总是前加; after: 总是后加; 
-  #smart: 智能模式连续输入英文时第二个单词前开始加空格，非输入状态的回车与空格都能打断加空格状态
-  #支持设置延时销毁加空格状态，单位秒,0不超时，大于0为超时时间，极大的保证了连续输入的体验。
   english_spacing: off
   spacing_timeout: 5

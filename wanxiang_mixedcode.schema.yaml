@@ -2,11 +2,12 @@
 # encoding: utf-8
 schema:
   schema_id: wanxiang_mixedcode
-  name: "万象：英文与混合编码"
+  name: "万象小鹤：混合输入编码"
   version: "LTS"
   author: amzxyz
   description: |
     混合编码负责将英文、中英文混合、携带符号的词组等全部统一到这个方案中完成
+
 engine:
   processors:
     - key_binder
@@ -25,13 +26,12 @@ engine:
 key_binder:
   __include: default:/key_binder?
 
-
 speller:
   alphabet: "abcdefghijklmnopqrstuvwxyz;"
   delimiter: " '"
   algebra:
-    __include: wanxiang_algebra:/mixed/通用派生规则
-    __patch: wanxiang_algebra:/mixed/小鹤双拼
+    __include: wanxiang_algebra:/flypy_mixed
+
 translator:
   dictionary: wanxiang_mixedcode
   enable_user_dict: false
