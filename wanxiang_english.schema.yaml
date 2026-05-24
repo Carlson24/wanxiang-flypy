@@ -2,7 +2,7 @@
 # encoding: utf-8
 schema:
   schema_id: wanxiang_english
-  name: 万象小鹤英文
+  name: 英文·万象小鹤
   version: "lts"
   author: amzxyz
   description: |
@@ -54,9 +54,6 @@ key_binder:
   import_preset: default
   bindings:
     - { when: always, accept: Shift+space, select: .next }
-
-recognizer:
-  import_preset: default
 
 wanxiang_english:
   dictionary: wanxiang_english
