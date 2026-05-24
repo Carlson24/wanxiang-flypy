@@ -11,9 +11,28 @@ schema:
   description: |
     小鹤音形+万象拼音Pro
   dependencies:
-    - wanxiang_mixedcode #中英文混合词汇
-    - wanxiang_reverse #部件拆字，反查及辅码
-    - wanxiang_english #中英文混合词汇
+    - wanxiang_mixedcode # 中英文混合词汇
+    - wanxiang_reverse # 部件拆字，反查及辅码
+    - wanxiang_english # 中英文混合词汇
+
+speller:
+  alphabet: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA1234567890`;/\@|›
+  initials: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA/@|›
+  delimiter: " '"
+  visual_delimiter: " "
+  algebra:
+    __patch:
+      - "wanxiang_algebra:/模糊音_in_ing"
+      - "wanxiang_algebra:/flypy"
+
+grammar:
+  language: wanxiang-lts-zh-hans
+  collocation_max_length: 8
+  collocation_min_length: 2
+  collocation_penalty: -16
+  non_collocation_penalty: -8
+  weak_collocation_penalty: -100
+  rear_penalty: -20
 
 switches:
   - name: ascii_mode
@@ -37,6 +56,9 @@ switches:
   - name: prediction
     states: [预测关, 预测开]
     reset: 1
+  - name: char_priority
+    states: [词组先, 单字先]
+    reset: 0
   - options: [raw_input, tone_display, full_pinyin]
     states: [原编码, 有声调, 无声调]
     reset: 0
@@ -46,9 +68,35 @@ switches:
   - options: [s2s, s2t, s2hk, s2tw]
     states: [简体, 通繁, 港繁, 臺繁]
     reset: 0
-  - name: char_priority
-    states: [词组先, 单字先]
-    reset: 0
+
+key_binder:
+  import_preset: default
+  shijian_keys: ["/", "o"]
+  bindings:
+    - { when: has_menu, accept: minus, send: Page_Up }
+    - { when: has_menu, accept: equal, send: Page_Down }
+    - { when: always, toggle: ascii_punct, accept: Control+Shift+3 } # 切换中英标点
+    - { when: always, toggle: s2t, accept: Control+Shift+4 }
+    - { when: composing, accept: Alt+Left, send: Shift+Left }
+    - { when: composing, accept: Alt+Right, send: Shift+Right }
+    - { when: composing, accept: Control+w, send: Control+BackSpace }
+    - { when: has_menu, accept: semicolon, send: 2 }
+    - { when: has_menu, accept: "Control+e", toggle: chinese_english }
+    - { when: always, accept: Shift+space, select: .next } #下一个方案
+    - { when: has_menu, accept: "Tab", send: "Control+Right" }
+    - { when: composing, accept: "Tab", send: "Control+Right" }
+    - {
+        when: composing,
+        accept: "Control+Tab",
+        send_sequence: "{Home}{Shift+Right}{1}{Shift+Right}"
+      }
+    - {
+        match: "^.*`$",
+        accept: "`",
+        send_sequence: "{BackSpace}{Home}{`}{`}{End}"
+      }
+    - { match: "^/$", accept: "/", send_sequence: "{space}" }
+    - { match: "^\\|$", accept: "|", send_sequence: "{space}" }
 
 engine:
   processors:
@@ -102,14 +150,23 @@ engine:
     - lua_filter@*wanxiang.user_predict*F
     - uniquifier
 
-grammar:
-  language: wanxiang-lts-zh-hans
-  collocation_max_length: 8
-  collocation_min_length: 2
-  collocation_penalty: -16
-  non_collocation_penalty: -8
-  weak_collocation_penalty: -100
-  rear_penalty: -20
+calculator:
+  trigger: "="
+
+force_upper_aux:
+  hotkey: "comma"
+  symbol: "›"
+
+input_stats:
+  db_name: "lua/data/stats"
+  triggers:
+    clear: "/qctj"
+    today: "/rtj"
+    week: "/ztj"
+    month: "/ytj"
+    year: "/ntj"
+    total: "/tj"
+    history: "/htj"
 
 super_comment:
   candidate_length: 10
@@ -133,40 +190,6 @@ super_processor:
   kp_number_mode: auto
   limit_repeated: "16,64"
   select_character: "bracketleft, bracketright"
-
-user_predict:
-  db_name: "lua/data/predict"
-  enable_post_predict: true
-  enable_context_reorder: true
-  enable_fallback_reorder: false
-  max_candidates: 5
-  max_predictions: 10
-  expiry_days: 90
-  activation_days: 7
-  max_memory_branches: 15
-  decay_rate: 0.85
-  enable_predict_space: true
-  context_timeout: 5000
-  custom_classifiers: ""
-
-super_tips:
-  db_name: "lua/data/tips"
-  tips_key: "period"
-  files:
-    - lua/data/tips_show.txt
-    - lua/data/tips_chaifen.txt
-  disabled_types: ""
-
-force_upper_aux:
-  hotkey: "comma"
-  symbol: "›"
-
-super_sequence:
-  db_name: "lua/data/sequence"
-  up: "Control+j" # 上移
-  down: "Control+k" # 下移
-  reset: "Control+l" # 重置
-  pin: "Control+p" # 置顶
 
 super_replacer:
   db_name: "lua/data/replacer"
@@ -238,6 +261,21 @@ super_replacer:
       files:
         - lua/data/flypy_commit.txt
 
+super_sequence:
+  db_name: "lua/data/sequence"
+  up: "Control+j" # 上移
+  down: "Control+k" # 下移
+  reset: "Control+l" # 重置
+  pin: "Control+p" # 置顶
+
+super_tips:
+  db_name: "lua/data/tips"
+  tips_key: "period"
+  files:
+    - lua/data/tips_show.txt
+    - lua/data/tips_chaifen.txt
+  disabled_types: ""
+
 date_formats:
   - "Y 年 n 月 j 日"
   - "n 月 j 日"
@@ -255,11 +293,27 @@ time_formats:
   - "H:M"
   - "H 时 M 分 S 秒"
   - "H:M:S"
+
 tone_preedit:
   "7": "①"
   "8": "②"
   "9": "③"
   "0": "④"
+
+user_predict:
+  db_name: "lua/data/predict"
+  enable_post_predict: true
+  enable_context_reorder: true
+  enable_fallback_reorder: false
+  max_candidates: 5
+  max_predictions: 10
+  expiry_days: 90
+  activation_days: 7
+  max_memory_branches: 15
+  decay_rate: 0.85
+  enable_predict_space: true
+  context_timeout: 5000
+  custom_classifiers: ""
 
 quick_symbol_text:
   trigger: "^|([a-z])$"
@@ -394,20 +448,6 @@ paired_symbols:
     qu: "??"
     sb: "sb"
 
-input_stats:
-  db_name: "lua/data/stats"
-  triggers:
-    clear: "/qctj"
-    today: "/rtj"
-    week: "/ztj"
-    month: "/ytj"
-    year: "/ntj"
-    total: "/tj"
-    history: "/htj"
-
-calculator:
-  trigger: "="
-
 translator:
   dictionary: wanxiang_pro
   enable_completion: true
@@ -490,35 +530,6 @@ punctuator:
   digit_separators: ":,."
   __include: wanxiang_symbols:/symbol_table
 
-key_binder:
-  import_preset: default
-  shijian_keys: ["/", "o"]
-  bindings:
-    - { when: has_menu, accept: minus, send: Page_Up }
-    - { when: has_menu, accept: equal, send: Page_Down }
-    - { when: always, toggle: ascii_punct, accept: Control+Shift+3 } # 切换中英标点
-    - { when: always, toggle: s2t, accept: Control+Shift+4 }
-    - { when: composing, accept: Alt+Left, send: Shift+Left }
-    - { when: composing, accept: Alt+Right, send: Shift+Right }
-    - { when: composing, accept: Control+w, send: Control+BackSpace }
-    - { when: has_menu, accept: semicolon, send: 2 }
-    - { when: has_menu, accept: "Control+e", toggle: chinese_english }
-    - { when: always, accept: Shift+space, select: .next } #下一个方案
-    - { when: has_menu, accept: "Tab", send: "Control+Right" }
-    - { when: composing, accept: "Tab", send: "Control+Right" }
-    - {
-        when: composing,
-        accept: "Control+Tab",
-        send_sequence: "{Home}{Shift+Right}{1}{Shift+Right}"
-      }
-    - {
-        match: "^.*`$",
-        accept: "`",
-        send_sequence: "{BackSpace}{Home}{`}{`}{End}"
-      }
-    - { match: "^/$", accept: "/", send_sequence: "{space}" }
-    - { match: "^\\|$", accept: "|", send_sequence: "{space}" }
-
 editor:
   bindings:
     space: confirm # 空格键：上屏候选项
@@ -537,18 +548,6 @@ navigator:
     Right: right_by_char_no_loop
     Shift+Left: left_by_syllable
     Shift+Right: right_by_syllable
-
-speller:
-  # 如果不想让什么标点直接上屏，可以加在 alphabet，或者编辑标点符号为两个及以上的映射
-  alphabet: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA1234567890`;/\@|›
-  # initials 定义仅作为始码的按键，排除 ` 让单个的 ` 可以直接上屏
-  initials: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA/@|›
-  delimiter: " '"
-  visual_delimiter: " "
-  algebra:
-    __patch:
-      - "wanxiang_algebra:/模糊音_in_ing"
-      - "wanxiang_algebra:/flypy"
 
 user_dict_set:
   dictionary: wanxiang_pro

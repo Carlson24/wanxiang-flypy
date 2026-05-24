@@ -6,3 +6,5 @@ sync/*
 *.custom.yaml
 installation.yaml
 user.yaml
+user_abbrev.txt
+user_phrase.txt
